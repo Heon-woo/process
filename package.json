@@ -1,0 +1,10 @@
+{
+  "name": "pass-workspace",
+  "private": true,
+  "packageManager": "pnpm@9.15.9",
+  "scripts": {
+    "dev": "pnpm --dir frontend dev",
+    "build": "pnpm --dir frontend build"
+  }
+}
+
