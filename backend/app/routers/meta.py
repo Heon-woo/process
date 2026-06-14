@@ -1,5 +1,6 @@
 from fastapi import APIRouter
 
+from app.auth import DEMO_USER
 from app.database import get_connection
 
 
@@ -22,12 +23,7 @@ def get_options():
         products.setdefault(row["product"], []).append(row["tech"])
     return {
         "products": products,
-        "current_user": {
-            "name": "김하늘",
-            "team": "품질혁신",
-            "role": "SYSTEM_ADMIN",
-            "managed_scopes": ["DRAM/1a", "DRAM/1b", "NAND/V8", "NAND/V9"],
-        },
+        "current_user": DEMO_USER,
     }
 
 
@@ -64,4 +60,3 @@ def get_dashboard():
         "recent_cpms": recent_cpms,
         "batches": batches,
     }
-

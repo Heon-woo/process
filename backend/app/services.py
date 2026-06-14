@@ -6,6 +6,20 @@ from typing import Any
 from app.seed_data import DEFAULT_CPMS_COLUMNS, DEFAULT_PAS_COLUMNS
 
 
+EDIT_ROLES = {"SYSTEM_ADMIN", "TECH_MANAGER"}
+
+
+def can_edit_scope(
+    role: str,
+    scopes: tuple[str, ...],
+    product: str,
+    tech: str,
+) -> bool:
+    if role == "SYSTEM_ADMIN":
+        return True
+    return role == "TECH_MANAGER" and f"{product}/{tech}" in scopes
+
+
 def now_text() -> str:
     return datetime.now().strftime("%Y-%m-%d %H:%M")
 
@@ -90,4 +104,3 @@ def get_column_config(
         "updated_by": "System",
         "updated_at": None,
     }
-

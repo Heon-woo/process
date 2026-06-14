@@ -1,8 +1,9 @@
-from fastapi import APIRouter, Header, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 
+from app.auth import UserContext, get_demo_user_context
 from app.database import get_connection
 from app.schemas import CpmsUpdate
-from app.services import add_log, now_text, query_records
+from app.services import EDIT_ROLES, add_log, can_edit_scope, now_text, query_records
 
 
 router = APIRouter(prefix="/cpms", tags=["CPMS"])
@@ -55,9 +56,9 @@ def get_cpms_detail(record_id: int):
 def update_cpms_record(
     record_id: int,
     payload: CpmsUpdate,
-    x_user_role: str = Header(default="SYSTEM_ADMIN"),
+    user: UserContext = Depends(get_demo_user_context),
 ):
-    if x_user_role not in {"SYSTEM_ADMIN", "TECH_MANAGER"}:
+    if user.role not in EDIT_ROLES:
         raise HTTPException(status_code=403, detail="담당자만 구분자를 수정할 수 있습니다.")
     with get_connection() as connection:
         current = connection.execute(
@@ -65,6 +66,16 @@ def update_cpms_record(
         ).fetchone()
         if not current:
             raise HTTPException(status_code=404, detail="데이터를 찾을 수 없습니다.")
+        if not can_edit_scope(
+            user.role,
+            user.managed_scopes,
+            current["product"],
+            current["tech"],
+        ):
+            raise HTTPException(
+                status_code=403,
+                detail="담당 Product/Tech 범위가 아니어서 수정할 수 없습니다.",
+            )
         connection.execute(
             """
             UPDATE cpms_records
@@ -75,8 +86,8 @@ def update_cpms_record(
         )
         add_log(
             connection,
-            "김하늘",
-            "품질혁신",
+            user.name,
+            user.team,
             "CPMS",
             "구분자 수정",
             current["document_no"],
@@ -85,4 +96,3 @@ def update_cpms_record(
             "SELECT * FROM cpms_records WHERE id = ?", (record_id,)
         ).fetchone()
     return updated
-

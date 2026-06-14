@@ -1,4 +1,5 @@
 import json
+import os
 import sqlite3
 from contextlib import contextmanager
 from pathlib import Path
@@ -6,8 +7,8 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 DATA_DIR = BASE_DIR / "data"
-DB_PATH = DATA_DIR / "pass.db"
-UPLOAD_DIR = DATA_DIR / "uploads"
+DB_PATH = Path(os.environ.get("PASS_DB_PATH", str(DATA_DIR / "pass.db"))).expanduser()
+UPLOAD_DIR = Path(os.environ.get("PASS_UPLOAD_DIR", str(DATA_DIR / "uploads"))).expanduser()
 
 
 def dict_factory(cursor: sqlite3.Cursor, row: tuple) -> dict:
@@ -17,6 +18,7 @@ def dict_factory(cursor: sqlite3.Cursor, row: tuple) -> dict:
 @contextmanager
 def get_connection():
     DATA_DIR.mkdir(parents=True, exist_ok=True)
+    DB_PATH.parent.mkdir(parents=True, exist_ok=True)
     UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
     connection = sqlite3.connect(DB_PATH)
     connection.row_factory = dict_factory

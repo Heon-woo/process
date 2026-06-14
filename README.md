@@ -96,9 +96,13 @@ cd backend
 .venv/bin/python -m pytest -q
 ```
 
+테스트는 임시 SQLite DB와 업로드 경로를 사용하므로 로컬 Prototype 데이터를 변경하지 않습니다.
+
 ## Prototype 데이터
 
 첫 백엔드 실행 시 `backend/data/pass.db`가 자동 생성되고 DRAM/NAND 샘플 데이터가 입력됩니다. 초기화하려면 서버 종료 후 해당 DB 파일만 삭제하고 다시 실행합니다.
+
+`PASS_DB_PATH`와 `PASS_UPLOAD_DIR` 환경변수로 DB 및 업로드 경로를 변경할 수 있습니다.
 
 업로드 파일은 `backend/data/uploads`에 저장됩니다. 운영 환경에서는 사내 Object Storage 또는 문서 저장소로 교체해야 합니다.
 
@@ -124,7 +128,7 @@ CPMS 데이터에는 `ai_status`, `ai_link` 필드가 준비되어 있습니다.
 
 ## 현재 검증 결과
 
-- FastAPI 테스트: 4 passed
+- FastAPI 테스트: 11 passed
 - React production build: 성공
 - 통합 홈, PAS Sheet, 컬럼 설정, CPMS 상세 차트 브라우저 검증 완료
 - PAS WebSocket 다중 연결 테스트 완료
